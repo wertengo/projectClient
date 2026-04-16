@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "ui_jsondialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -7,9 +8,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    flagButton = true;
+    formatter = new jsonFormater(this);
+
+    setWindowTitle("Клиент");
+
     client = new Client();
 
-    connect(client, SIGNAL(connectedToServer()), this, SLOT(showConnectedStatus()));
+//    connect(client, SIGNAL(connectedToServer()), this, SLOT(showConnectedStatus()));
 //    connect(client, SIGNAL(disconnectedFromServer()), this, SLOT(showDisconnectedStatus()));
     connect(client, SIGNAL(messageReceived(QString)), this, SLOT(printMessage(const QString)));
 
@@ -20,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete formatter;
+    // delete jsonDialog;
 }
 
 
@@ -42,16 +50,59 @@ void MainWindow::on_buttonConnect_clicked()
 {
     ui->listMessage->append("Подключение...");
     client->connectToServer();
+
+    if (client->getConnectedToServer() && flagButton) {
+        showConnectedStatus();
+        flagButton = false;
+    }else{
+        flagButton = true;
+        showDisconnectedStatus();
+    }
 }
 
 void MainWindow::showConnectedStatus(){
     ui->listMessage->append("Соединение установлено!");
+    ui->buttonConnect->setText("Disconect");
+    ui->buttonPushJSON->setEnabled(true);
+    ui->pushMessage->setEnabled(true);
+    ui->textFieldMessage->setEnabled(true);
 }
 
 void MainWindow::showDisconnectedStatus(){
     ui->listMessage->append("Соединение разорвано(((");
+    ui->buttonConnect->setText("Connect");
+    ui->buttonPushJSON->setEnabled(false);
+    ui->pushMessage->setEnabled(false);
+    ui->textFieldMessage->setEnabled(false);
+    client->desconnectToServer();
 }
 
 void MainWindow::printMessage(const QString &message){
     ui->listMessage->append(message);
 }
+
+void MainWindow::on_buttonPushJSON_clicked()
+{
+    auto jsonDialog = new JSONDialog(this);
+    // jsonDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+//    connect(jsonDialog, &JSONDialog::dataRead, formatter, &jsonFormater::onFromData, Qt::UniqueConnection);
+//    connect(formatter, &jsonFormater::jsonRead, client, &Client::onSendJson, Qt::UniqueConnection);
+
+//    jsonDialog->show();
+
+    auto resExec = jsonDialog->exec();
+    if (resExec == 1) {
+        jsonDialog->result();
+        QString name, lastName, MidName;
+        jsonDialog->getDataRead(name, lastName, MidName);
+        QByteArray jsonData = formatter->onFromData(name, lastName, MidName);
+        client->onSendJson(jsonData);
+    }
+
+    jsonDialog->deleteLater();
+
+//    jsonDialog.exec();
+}
+
+

@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include <client.h>
-
+#include "jsonformater.h"
+#include "jsondialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,18 +16,24 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    void showConnectedStatus();
+    void showDisconnectedStatus();
     ~MainWindow();
 
 private slots:
     void on_pushMessage_clicked();
     void on_buttonConnect_clicked();
 
-    void showConnectedStatus();
-    void showDisconnectedStatus();
+//    void showConnectedStatus();
+//    void showDisconnectedStatus();
     void printMessage(const QString &message);
+    void on_buttonPushJSON_clicked();
 
 private:
     Ui::MainWindow *ui;
     Client *client;
+    jsonFormater *formatter;
+    bool flagButton;
+    //JSONDialog *jsonDialog;
 };
 #endif // MAINWINDOW_H

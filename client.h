@@ -16,6 +16,8 @@ public:
 
     void sendMessage(const QString &message);
     void connectToServer();
+    void desconnectToServer();
+    bool getConnectedToServer();
 
 
 signals:
@@ -23,7 +25,7 @@ signals:
 //    void disconnectedFromServer();
     void messageReceived(QString message);
 public slots:
-
+    void onSendJson(const QByteArray &arrayData);
 
 private slots:
     void onReadyRead();

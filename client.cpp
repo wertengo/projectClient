@@ -16,20 +16,49 @@ Client::Client()
 void Client::connectToServer(){
     tcpSocket->connectToHost(serverIP, serverPort);
 
-    qDebug() << "Состояние сокета: " << tcpSocket->state();
-    tcpSocket->waitForConnected(300);
+    tcpSocket->waitForConnected(3);
 
+    qDebug() << "Состояние сокета: " << tcpSocket->state();
+
+//    if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
+//        qDebug() << "INFO: Сокет подключен";
+//        emit connectedToServer();
+//    }else{
+//        qDebug() << "INFO: Сокет не подключен";
+//    }
+}
+
+void Client::desconnectToServer(){
+    tcpSocket->disconnectFromHost();
+//    tcpSocket->deleteLater();
+}
+
+
+bool Client::getConnectedToServer(){
     if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
-        qDebug() << "INFO: Сокет подключен";
-        emit connectedToServer();
+            qDebug() << "INFO: Сокет подключен";
+//            emit connectedToServer();
+            return true;
+        }
+
+    qDebug() << "INFO: Сокет не подключен";
+
+    return false;
+}
+
+void Client::onSendJson(const QByteArray &arrayData){
+    if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
+        tcpSocket->write(arrayData);
+        tcpSocket->flush();
+        qDebug() << "Отправлен JSON файл серверу :) ";
     }else{
-        qDebug() << "INFO: Сокет не подключен";
+        qDebug() << "Ошибка сокет не подключен и JSON не был отправлен :(";
     }
 }
 
 void Client::sendMessage(const QString &message){
     if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
-       tcpSocket->write(message.toUtf8());
+       tcpSocket->write("T" + message.toUtf8());
        tcpSocket->flush();
     }
 }
@@ -63,6 +92,7 @@ void Client::loadSettings(){
 
 Client::~Client(){
     tcpSocket->disconnectFromHost();
+    tcpSocket->deleteLater();
 }
 
 

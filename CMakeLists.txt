@@ -18,11 +18,16 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Network REQU
 
 set(PROJECT_SOURCES
         main.cpp
+        jsonformater.cpp
+        jsonformater.h
         client.cpp
         client.h
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        jsondialog.cpp
+        jsondialog.h
+        jsondialog.ui
         ${TS_FILES}
 )
 
