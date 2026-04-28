@@ -1,5 +1,8 @@
 #include "client.h"
 
+#include <QApplication>
+
+
 Client::Client()
 {
     tcpSocket = new QTcpSocket(this);
@@ -69,8 +72,14 @@ void Client::onReadyRead(){
 }
 
 void Client::loadSettings(){
-    QString confPath = QDir::currentPath() + "/clientInit.ini";
-    QSettings settings(confPath, QSettings::IniFormat);
+    // QString confPath = QDir::currentPath() + "/clientInit.ini";
+    QString confPath = QString("%1/%2").arg(qApp->applicationDirPath()).arg("data");
+    QDir dir(confPath);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+    QString filePath = confPath + "/clientInit.ini";
+    QSettings settings(filePath, QSettings::IniFormat);
 
     if (!settings.contains("Server/Port")) {
         settings.setValue("Server/Port", 56789);
@@ -85,6 +94,7 @@ void Client::loadSettings(){
 
     serverPort = settings.value("Server/Port").toInt();
     serverIP = settings.value("Server/IP").toString();
+    qDebug() << "Размещение инит файла: " << confPath;
     qDebug() << "Вывод порта из инит файла: " << serverPort;
     qDebug() << "Вывод IP адреса из инит файла: " << serverIP;
 }
