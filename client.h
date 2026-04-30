@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QDir>
 #include <QSettings>
+#include <QDataStream>
 
 
 class Client : public QObject
@@ -32,6 +33,7 @@ private slots:
 //    void connectedToServer();
 
 private:
+    quint64 m_nNextBlockSize;
     QTcpSocket *tcpSocket;
     QList<QByteArray> message;
     QString serverIP;

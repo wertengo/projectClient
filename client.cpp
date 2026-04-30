@@ -3,7 +3,7 @@
 #include <QApplication>
 
 
-Client::Client()
+Client::Client() : m_nNextBlockSize(0)
 {
     tcpSocket = new QTcpSocket(this);
 
@@ -49,26 +49,91 @@ bool Client::getConnectedToServer(){
     return false;
 }
 
-void Client::onSendJson(const QByteArray &arrayData){
-    if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
-        tcpSocket->write(arrayData);
-        tcpSocket->flush();
-        qDebug() << "Отправлен JSON файл серверу :) ";
-    }else{
+// void Client::onSendJson(const QByteArray &arrayData){
+//     if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
+//         tcpSocket->write(arrayData);
+//         tcpSocket->flush();
+//         qDebug() << "Отправлен JSON файл серверу :) ";
+//     }else{
+//         qDebug() << "Ошибка сокет не подключен и JSON не был отправлен :(";
+//     }
+// }
+
+void Client::onSendJson(const QByteArray &arrayData)
+{
+    if (tcpSocket->state() != QAbstractSocket::ConnectedState) {
         qDebug() << "Ошибка сокет не подключен и JSON не был отправлен :(";
+        return;
     }
+
+    // payload – чистый JSON, как есть (без 'T' и прочих префиксов)
+    QByteArray payload = arrayData;
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_0);          // версия должна совпадать с сервером
+    out << (quint64)0;                             // резервируем 8 байт под размер
+    out << payload;                                // пишем JSON-строку
+    out.device()->seek(0);
+    out << (quint64)(block.size() - sizeof(quint64)); // записываем реальный размер
+
+    tcpSocket->write(block);
+    tcpSocket->flush();
+    qDebug() << "Отправлен JSON файл серверу :)";
 }
 
-void Client::sendMessage(const QString &message){
-    if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
-       tcpSocket->write("T" + message.toUtf8());
-       tcpSocket->flush();
-    }
+// void Client::sendMessage(const QString &message){
+//     if (tcpSocket->state() == QAbstractSocket::ConnectedState) {
+//        tcpSocket->write("T" + message.toUtf8());
+//        tcpSocket->flush();
+//     }
+// }
+
+void Client::sendMessage(const QString &message)
+{
+    if (tcpSocket->state() != QAbstractSocket::ConnectedState)
+        return;
+
+    QByteArray payload = ("T" + message).toUtf8();
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_0);
+    out << (quint64)0;
+    out << payload;
+    out.device()->seek(0);
+    out << (quint64)(block.size() - sizeof(quint64));
+
+    tcpSocket->write(block);
+    tcpSocket->flush();
 }
+
+// void Client::onReadyRead(){
+//     QByteArray array = tcpSocket->readAll();
+//     emit messageReceived(QString::fromUtf8(array));
+// }
 
 void Client::onReadyRead(){
-    QByteArray array = tcpSocket->readAll();
-    emit messageReceived(QString::fromUtf8(array));
+    QDataStream in(tcpSocket);
+    in.setVersion(QDataStream::Qt_5_0);
+
+    for (;;) {
+        if (!m_nNextBlockSize) {
+            if (tcpSocket->bytesAvailable() < sizeof(quint64)) {
+                break;
+            }
+            in >> m_nNextBlockSize;
+        }
+
+        if (tcpSocket->bytesAvailable() < m_nNextBlockSize) {
+            break;
+        }
+
+        QByteArray array;
+        in >> array;
+        m_nNextBlockSize = 0;
+        emit messageReceived(QString::fromUtf8(array));
+
+    }
+
 }
 
 void Client::loadSettings(){
