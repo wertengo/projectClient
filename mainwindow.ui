@@ -32,14 +32,14 @@
        <item>
         <widget class="QLineEdit" name="textFieldMessage">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushMessage">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Отправка сообщений</string>
@@ -74,7 +74,7 @@
      <x>0</x>
      <y>0</y>
      <width>744</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

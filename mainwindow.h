@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <client.h>
+#include "udpclient.h"
 #include "jsonformater.h"
 #include "jsondialog.h"
 
@@ -32,6 +33,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Client *client;
+    UdpClient *Udp_Client;
     jsonFormater *formatter;
     bool flagButton;
     //JSONDialog *jsonDialog;

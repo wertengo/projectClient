@@ -14,10 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Клиент");
 
     client = new Client();
+    Udp_Client = new UdpClient();
 
 //    connect(client, SIGNAL(connectedToServer()), this, SLOT(showConnectedStatus()));
 //    connect(client, SIGNAL(disconnectedFromServer()), this, SLOT(showDisconnectedStatus()));
     connect(client, SIGNAL(messageReceived(QString)), this, SLOT(printMessage(const QString)));
+    connect(Udp_Client, SIGNAL(messageReceived(QString)), this, SLOT(printMessage(QString)));
 
     ui->listMessage->setLineWrapMode(QTextEdit::NoWrap);
     ui->listMessage->setReadOnly(true);
@@ -41,6 +43,7 @@ void MainWindow::on_pushMessage_clicked()
     message.append(ui->textFieldMessage->text().trimmed());
 //    ui->listMessage->append(message);
     client->sendMessage(message);
+    Udp_Client->sendMessage("UDP" + message);
     message.clear();
     ui->textFieldMessage->clear();
 }
@@ -72,8 +75,8 @@ void MainWindow::showDisconnectedStatus(){
     ui->listMessage->append("Соединение разорвано(((");
     ui->buttonConnect->setText("Connect");
     ui->buttonPushJSON->setEnabled(false);
-    ui->pushMessage->setEnabled(false);
-    ui->textFieldMessage->setEnabled(false);
+    ui->pushMessage->setEnabled(true);
+    ui->textFieldMessage->setEnabled(true);
     client->desconnectToServer();
 }
 
