@@ -47,6 +47,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushTxtForUDP">
+         <property name="text">
+          <string>txtUdp</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="buttonPushJSON">
          <property name="enabled">
           <bool>false</bool>

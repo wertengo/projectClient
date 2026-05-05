@@ -109,3 +109,8 @@ void MainWindow::on_buttonPushJSON_clicked()
 }
 
 
+void MainWindow::on_pushTxtForUDP_clicked()
+{
+    Udp_Client->sendFileUDP("/home/vitya/Загрузки/text.txt");
+}
+

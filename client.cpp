@@ -66,15 +66,14 @@ void Client::onSendJson(const QByteArray &arrayData)
         return;
     }
 
-    // payload – чистый JSON, как есть (без 'T' и прочих префиксов)
     QByteArray payload = arrayData;
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_0);          // версия должна совпадать с сервером
-    out << (quint64)0;                             // резервируем 8 байт под размер
-    out << payload;                                // пишем JSON-строку
+    out.setVersion(QDataStream::Qt_5_0);
+    out << (quint64)0;
+    out << payload;
     out.device()->seek(0);
-    out << (quint64)(block.size() - sizeof(quint64)); // записываем реальный размер
+    out << (quint64)(block.size() - sizeof(quint64));
 
     tcpSocket->write(block);
     tcpSocket->flush();

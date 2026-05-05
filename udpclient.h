@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QDataStream>
 #include <QDebug>
+#include <QFile>
 
 class UdpClient : public QObject
 {
@@ -17,6 +18,7 @@ public:
     ~UdpClient();
 
     void sendMessage(QString message);
+    void sendFileUDP(const QString &filePath);
 
 signals:
     void messageReceived(QString message);

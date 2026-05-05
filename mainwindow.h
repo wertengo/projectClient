@@ -30,6 +30,8 @@ private slots:
     void printMessage(const QString &message);
     void on_buttonPushJSON_clicked();
 
+    void on_pushTxtForUDP_clicked();
+
 private:
     Ui::MainWindow *ui;
     Client *client;
