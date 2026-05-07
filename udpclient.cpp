@@ -31,8 +31,8 @@ void UdpClient::sendMessage(QString message)
     QByteArray baDatagram;
     QDataStream out(&baDatagram, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
-    out << (const char)0x01;
-    out << message.toUtf8();
+    out << (quint8)0x01;
+    baDatagram.append(message);
     qDebug() << message;
     emit messageReceived(message);
 
@@ -55,14 +55,13 @@ void UdpClient::sendFileUDP(const QString &filePath)
     qDebug() << "Отправка файла размером: " << file.size() << " байт";
 
     while (!file.atEnd()) {
-        QByteArray payload = QString(file.read(PAYLOAD_SIZE)).toUtf8();
+        QByteArray payload = file.read(PAYLOAD_SIZE);
 
         QByteArray datagram;
         QDataStream stream(&datagram, QIODevice::WriteOnly);
         stream.setVersion(QDataStream::Qt_5_0);
 
-        stream << (const char)0x02;
-        stream << sequenceNumber;
+        stream << (quint8)0x02 << sequenceNumber;
         datagram.append(payload);
 
         qint64 bytesSent = m_pudp->writeDatagram(datagram, QHostAddress("172.16.202.129"), 2425);
