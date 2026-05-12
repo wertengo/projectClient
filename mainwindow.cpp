@@ -111,6 +111,18 @@ void MainWindow::on_buttonPushJSON_clicked()
 
 void MainWindow::on_pushTxtForUDP_clicked()
 {
-    Udp_Client->sendFileUDP("/home/vitya/Загрузки/text.txt");
+    QString filePath = QFileDialog::getOpenFileName(
+        this,
+        "Выберите файл",
+        QDir::homePath(),
+        "Текстовые файлы (*.txt);;Изображения (*.png *.jpg);;Все файлы (*)"
+        );
+
+    if (!filePath.isEmpty()) {
+        qDebug() << "Выбран файл:" << filePath;
+        Udp_Client->sendFileUDP(filePath);
+    }
+    // Udp_Client->sendFileUDP("/home/vitya/Загрузки/example.txt");
+    // Udp_Client->sendFileUDP("/home/vitya/Загрузки/text.txt");
 }
 

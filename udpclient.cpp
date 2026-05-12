@@ -32,7 +32,8 @@ void UdpClient::sendMessage(QString message)
     QDataStream out(&baDatagram, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
     out << (quint8)0x01;
-    baDatagram.append(message);
+    // baDatagram.append(message);
+    out << message;
     qDebug() << message;
     emit messageReceived(message);
 
@@ -62,7 +63,8 @@ void UdpClient::sendFileUDP(const QString &filePath)
         stream.setVersion(QDataStream::Qt_5_0);
 
         stream << (quint8)0x02 << sequenceNumber;
-        datagram.append(payload);
+        // datagram.append(payload);
+        stream << payload;
 
         qint64 bytesSent = m_pudp->writeDatagram(datagram, QHostAddress("172.16.202.129"), 2425);
 

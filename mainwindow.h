@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
 #include <client.h>
 #include "udpclient.h"
 #include "jsonformater.h"
